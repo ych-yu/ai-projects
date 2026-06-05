@@ -61,7 +61,8 @@
 ai-projects/
 ├── weekly_report_final.py # 主程序文件
 ├── requirements.txt # 依赖列表
-└── README.md # 项目文档
+├── README.md # 项目文档
+└──.gitignore
 
 
 ---
