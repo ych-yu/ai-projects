@@ -5,7 +5,7 @@ import streamlit as st
 import dashscope
 from dashscope import Generation
 
-dashscope.api_key = "YOUR-API-KEY"  # 调用你的API key，部署前替换为真实Key
+dashscope.api_key = "sk-39376b95eb9d49b4aca4ce981e49281d"  # 调用你的API key，部署前替换为真实Key
 
 # 创建侧边栏让页面布局更清晰明了
 with st.sidebar:
