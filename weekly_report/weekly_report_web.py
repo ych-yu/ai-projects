@@ -5,7 +5,12 @@ import streamlit as st
 import dashscope
 from dashscope import Generation
 
-dashscope.api_key = st.secrets["DASHSCOPE_API_KEY"]  # 调用你的API key，部署前替换为真实Key
+# 读取API密钥
+try:
+    dashscope.api_key = st.secrets["DASHSCOPE_API_KEY"]
+except KeyError:
+    st.error("未配置 DASHSCOPE_API_KEY，请前往应用后台 Manage app - Secrets 添加密钥！")
+    st.stop()
 
 # 创建侧边栏让页面布局更清晰明了
 with st.sidebar:
