@@ -7,7 +7,16 @@ from dashscope import Generation
 # 侧边栏手动输入API密钥，彻底避开secrets读取报错
 with st.sidebar:
     st.subheader("API密钥配置")
-    DASHSCOPE_API_KEY = st.text_input("通义千问 DASHSCOPE_API_KEY", type="password", placeholder="粘贴sk开头的密钥")
+    DASHSCOPE_API_KEY = st.text_input(
+        "通义千问 DASHSCOPE_API_KEY",
+        type="password",
+        placeholder="粘贴sk开头的密钥"
+    )
+    # 加入专业提示，引导用户获取API Key
+    st.caption(
+        "本应用需使用通义千问API。请前往[阿里云百炼平台]"
+        "(https://bailian.aliyun.com)免费申请API Key。"
+    )
 
 # 校验密钥是否填写
 if not DASHSCOPE_API_KEY:
@@ -18,8 +27,8 @@ dashscope.api_key = DASHSCOPE_API_KEY
 # 创建侧边栏让页面布局更清晰明了
 with st.sidebar:
     st.divider()
-    job_type = st.selectbox("请选择你的工作类型：",["开发","产品","销售"])
-    mode = st.radio("请选择模式：",["快速模式","对话模式"])
+    job_type = st.selectbox("请选择你的工作类型：", ["开发", "产品", "销售"])
+    mode = st.radio("请选择模式：", ["快速模式", "对话模式"])
 
     st.divider()
     if st.button(" 清空全部历史"):
