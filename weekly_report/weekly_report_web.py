@@ -1,19 +1,23 @@
 # 使用python+streamlit实现AI周报生成器网页
-
 # 导入相应的库和包
 import streamlit as st
 import dashscope
 from dashscope import Generation
 
-# 读取API密钥
-try:
-    dashscope.api_key = st.secrets["DASHSCOPE_API_KEY"]
-except KeyError:
-    st.error("未配置 DASHSCOPE_API_KEY，请前往应用后台 Manage app - Secrets 添加密钥！")
+# 侧边栏手动输入API密钥，彻底避开secrets读取报错
+with st.sidebar:
+    st.subheader("API密钥配置")
+    DASHSCOPE_API_KEY = st.text_input("通义千问 DASHSCOPE_API_KEY", type="password", placeholder="粘贴sk开头的密钥")
+
+# 校验密钥是否填写
+if not DASHSCOPE_API_KEY:
+    st.warning("⚠️ 请在左侧侧边栏输入你的通义千问API密钥后，才能使用生成功能！")
     st.stop()
+dashscope.api_key = DASHSCOPE_API_KEY
 
 # 创建侧边栏让页面布局更清晰明了
 with st.sidebar:
+    st.divider()
     job_type = st.selectbox("请选择你的工作类型：",["开发","产品","销售"])
     mode = st.radio("请选择模式：",["快速模式","对话模式"])
 
