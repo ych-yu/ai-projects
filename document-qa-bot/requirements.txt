@@ -1,0 +1,7 @@
+streamlit
+chromadb
+langchain
+langchain-text-splitters
+openai==0.28
+PyPDF2
+dashscope
