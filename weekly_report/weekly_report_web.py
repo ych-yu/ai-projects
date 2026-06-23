@@ -11,7 +11,7 @@ with st.sidebar:
 
 # 校验密钥是否填写
 if not DASHSCOPE_API_KEY:
-    st.warning("⚠️ 请在左侧侧边栏输入你的通义千问API密钥后，才能使用生成功能！")
+    st.warning("请在左侧侧边栏输入你的通义千问API密钥后，才能使用生成功能！")
     st.stop()
 dashscope.api_key = DASHSCOPE_API_KEY
 
@@ -22,7 +22,7 @@ with st.sidebar:
     mode = st.radio("请选择模式：",["快速模式","对话模式"])
 
     st.divider()
-    if st.button("🗑️ 清空全部历史"):
+    if st.button(" 清空全部历史"):
         st.session_state.quick_history = []
         st.session_state.chat_history = []
         st.session_state.memory = []
@@ -79,13 +79,13 @@ if mode == "快速模式":
 
     # 快速模式历史记录展示区
     if st.session_state.quick_history:
-        with st.expander("📜 快速模式历史记录", expanded=False):
+        with st.expander("快速模式历史记录", expanded=False):
             for idx, msg in enumerate(st.session_state.quick_history):
                 if msg["role"] == "user":
-                    st.markdown(f"**👤 你：** {msg['content']}")
+                    st.markdown(f"**你：** {msg['content']}")
                 else:
-                    st.markdown(f"**🤖 AI周报：** {msg['content']}")
-                if st.button("🗑️ 删除", key=f"quick_del_{idx}"):
+                    st.markdown(f"**AI周报：** {msg['content']}")
+                if st.button("删除", key=f"quick_del_{idx}"):
                     del st.session_state.quick_history[idx]
                     st.rerun()
                 st.divider()
@@ -142,13 +142,13 @@ elif mode == "对话模式":
 
     # 对话模式历史记录展示区
     if st.session_state.chat_history:
-        with st.expander("📜 对话模式历史记录", expanded=False):
+        with st.expander("对话模式历史记录", expanded=False):
             for idx, msg in enumerate(st.session_state.chat_history):
                 if msg["role"] == "user":
-                    st.markdown(f"**👤 你：** {msg['content']}")
+                    st.markdown(f"**你：** {msg['content']}")
                 else:
-                    st.markdown(f"**🤖 AI周报：** {msg['content']}")
-                if st.button("🗑️ 删除", key=f"chat_del_{idx}"):
+                    st.markdown(f"**AI周报：** {msg['content']}")
+                if st.button("删除", key=f"chat_del_{idx}"):
                     del st.session_state.chat_history[idx]
                     st.rerun()
                 st.divider()
