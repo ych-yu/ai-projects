@@ -68,7 +68,12 @@ class VectorStore:
         response = requests.post(url, json=payload, headers=headers)
         if response.status_code == 200:
             resp_json = response.json()
-            question_embedding = resp_json["output"]["embeddings"][0]
+            raw_emb = resp_json["output"]["embeddings"][0]
+            # 确保是一维列表，ChromaDB 不接受嵌套列表
+            if isinstance(raw_emb, list) and len(raw_emb) == 1 and isinstance(raw_emb[0], list):
+                question_embedding = raw_emb[0]
+            else:
+                question_embedding = raw_emb
         else:
             return []
         results = self.collection.query(
