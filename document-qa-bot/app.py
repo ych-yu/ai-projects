@@ -7,7 +7,7 @@ from llm_service import generate_answer
 
 # 初始化向量库（用st.session_state确保只初始化一次）
 if "vector_store" not in st.session_state:
-    st.session_state.vector_store = VectorStore(api_key="YOUR-API-KEY")
+    st.session_state.vector_store = VectorStore(api_key=st.secrets["DASHSCOPE_API_KEY"])
 vector_store = st.session_state.vector_store
 
 # 页面标题
@@ -36,7 +36,7 @@ if st.button("搜索") and question:
     if results_docs:
         context = "\n\n".join(results_docs)
         with st.spinner("AI正在生成回答..."):
-            ai_answer = generate_answer(question, context)
+            ai_answer = generate_answer(question, context, api_key=st.secrets["DASHSCOPE_API_KEY"])
         # 展示检索到的原文
         st.write("检索到的相关内容：")
         for i, doc in enumerate(results_docs):
