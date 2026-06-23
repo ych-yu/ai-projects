@@ -45,7 +45,7 @@ class VectorStore:
         for start in range(0, len(chunks), batch_size):
             batch = chunks[start:start + batch_size]
             ids = [f"chunk_{start + i}" for i in range(len(batch))]
-            embeddings = self._embed(batch)
+            embeddings = [emb[0] if (isinstance(emb, list) and len(emb) == 1 and isinstance(emb[0], list)) else emb for emb in embeddings]
             self.collection.add(
                 documents=batch,
                 embeddings=embeddings,
