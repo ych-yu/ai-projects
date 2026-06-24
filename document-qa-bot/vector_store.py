@@ -2,6 +2,7 @@ import os
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
 os.environ["CHROMA_TELEMETRY"] = "0"
 import chromadb
+from chromadb.config import Settings
 from chromadb.utils import embedding_functions
 
 class VectorStore:
