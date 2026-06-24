@@ -1,9 +1,9 @@
 streamlit
-langchain==0.3.30
-langchain-community==0.3.31
-langchain-openai==0.3.35
-langchain-text-splitters==0.3.11
-openai==0.28
+langchain<1.0
+langchain-community
+langchain-openai
+langchain-text-splitters
+openai>=1.104.2
 PyPDF2
 requests
 faiss-cpu

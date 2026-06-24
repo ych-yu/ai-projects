@@ -14,7 +14,7 @@ def generate_answer(question,context,api_key="YOUR-API-KEY"):
     """
     api_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     headers = {
-        "Authorization": "Bearer YOUR-API-KEY",
+        "Authorization": "Bearer {api_key}",
         "Content-Type": "application/json"
     }
     payload = {

@@ -1,17 +1,3 @@
-import subprocess
-import sys
-
-# 云端自动补全缺失依赖
-subprocess.check_call([
-    sys.executable, "-m", "pip", "install",
-    "langchain==0.3.30",
-    "langchain-community==0.3.31",
-    "langchain-openai==0.3.35",
-    "langchain-text-splitters==0.3.11",
-    "faiss-cpu",
-    "-i", "https://pypi.tuna.tsinghua.edu.cn/simple"
-])
-
 # RAG智能文档问答机器人
 import streamlit as st
 from file_processer import read_file
