@@ -3,13 +3,18 @@ from chromadb.utils import embedding_functions
 
 class VectorStore:
     """向量存储与检索模块"""
+
     def __init__(self, api_key, collection_name="my_docs"):
         self.ef = embedding_functions.OpenAIEmbeddingFunction(
             api_key=api_key,
             api_base="https://dashscope.aliyuncs.com/compatible-mode/v1",
             model_name="text-embedding-v1"
         )
-        self.client = chromadb.PersistentClient(path="./my_chroma_db")
+        # 这里替换成带关闭遥测的客户端
+        self.client = chromadb.PersistentClient(
+            path="./my_chroma_db",
+            settings=chromadb.Settings(telemetry=False)
+        )
         self.collection_name = collection_name
         self._get_or_create_collection()
 
