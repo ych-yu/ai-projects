@@ -7,7 +7,7 @@ from llm_service import generate_answer
 
 # 初始化向量库（用st.session_state确保只初始化一次）
 if "vector_store" not in st.session_state:
-    st.session_state.vector_store = VectorStore(api_key="sk-39376b95eb9d49b4aca4ce981e49281d")
+    st.session_state.vector_store = VectorStore(api_key="YOUR-API-KEY")
 vector_store = st.session_state.vector_store
 
 # 页面标题
