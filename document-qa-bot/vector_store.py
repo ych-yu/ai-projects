@@ -1,3 +1,6 @@
+import os
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+os.environ["CHROMA_TELEMETRY"] = "0"
 import chromadb
 from chromadb.utils import embedding_functions
 
