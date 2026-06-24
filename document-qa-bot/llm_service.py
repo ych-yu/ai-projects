@@ -1,6 +1,6 @@
 import requests
 
-def generate_answer(question,context,api_key="YOUR-API-KEY"):
+def generate_answer(question,context,api_key="sk-39376b95eb9d49b4aca4ce981e49281d"):
     """
     调用通义千问大模型，基于文档内容生成回答。
 
@@ -14,7 +14,7 @@ def generate_answer(question,context,api_key="YOUR-API-KEY"):
     """
     api_url = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     headers = {
-        "Authorization": "Bearer {api_key}",
+        "Authorization": "Bearer sk-39376b95eb9d49b4aca4ce981e49281d",
         "Content-Type": "application/json"
     }
     payload = {
