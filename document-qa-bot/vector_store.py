@@ -1,84 +1,66 @@
 import os
+# 关闭遥测环境变量，规避无关报错
 os.environ["ANONYMIZED_TELEMETRY"] = "False"
-os.environ["CHROMA_TELEMETRY"] = "0"
-import chromadb
-from chromadb.config import Settings
-from chromadb.utils import embedding_functions
+
+# 修正导入路径，适配新版langchain
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
 
 class VectorStore:
-    """向量存储与检索模块"""
-
+    """FAISS向量存储模块，替代ChromaDB，无opentelemetry依赖"""
     def __init__(self, api_key, collection_name="my_docs"):
-        self.ef = embedding_functions.OpenAIEmbeddingFunction(
-            api_key=api_key,
-            api_base="https://dashscope.aliyuncs.com/compatible-mode/v1",
-            model_name="text-embedding-v1"
+        # 对接阿里云通义千问兼容Embedding接口
+        self.embedding = OpenAIEmbeddings(
+            openai_api_key=api_key,
+            openai_api_base="https://dashscope.aliyuncs.com/compatible-mode/v1",
+            model="text-embedding-v1"
         )
-        # 这里替换成带关闭遥测的客户端
-        self.client = chromadb.PersistentClient(
-            path="./my_chroma_db",
-            settings=chromadb.Settings(telemetry=False)
-        )
-        self.collection_name = collection_name
-        self._get_or_create_collection()
+        # 本地索引存储文件夹
+        self.index_path = f"./{collection_name}_faiss_index"
+        self.db = None
+        # 加载/初始化空向量库
+        self._load_or_create_index()
 
-    def _get_or_create_collection(self):
-        """安全获取/创建集合"""
+    def _load_or_create_index(self):
+        """读取本地FAISS索引，不存在则创建空库"""
         try:
-            self.collection = self.client.get_collection(
-                name=self.collection_name,
-                embedding_function=self.ef
+            self.db = FAISS.load_local(
+                folder_path=self.index_path,
+                embeddings=self.embedding,
+                allow_dangerous_deserialization=True
             )
         except Exception:
-            self.collection = self.client.create_collection(
-                name=self.collection_name,
-                embedding_function=self.ef
-            )
+            # 无索引文件，初始化空向量库
+            self.db = FAISS.from_texts(texts=[], embedding=self.embedding)
 
     def _clear_all(self):
-        """兼容0.4.24 清空集合所有数据"""
-        try:
-            # 获取全部数据ID
-            all_data = self.collection.get()
-            all_ids = all_data["ids"]
-            if len(all_ids) > 0:
-                self.collection.delete(ids=all_ids)
-        except Exception:
-            # 异常直接删集合重建兜底
-            self.client.delete_collection(self.collection_name)
-            self._get_or_create_collection()
+        """清空所有已存入文档，重建空索引（对应原Chroma清空逻辑）"""
+        self.db = FAISS.from_texts([], self.embedding)
 
     def add_documents(self, chunks):
         """
-        批量存入文本块（分批处理，每批最多25个，避免超过阿里云API限制）。
-        参数：
-            chunks: 文本块列表
-        返回:
-            存入的文本块数量
+        存入文本块，上传新文件自动覆盖旧文档
+        :param chunks: 文本块列表
+        :return: 成功存入的块数量
         """
-        # 清空旧数据
+        # 先清空历史数据，和原项目逻辑保持一致
         self._clear_all()
-
-        batch_size = 25  # 阿里云embedding API每批最多25条
-        total = 0
-
-        # 分批存入
-        for start in range(0, len(chunks), batch_size):
-            batch = chunks[start:start + batch_size]
-            ids = [f"chunk_{start + i}" for i in range(len(batch))]
-            self.collection.add(
-                documents=batch,
-                ids=ids
-            )
-            total += len(batch)
-
-        return total
+        if len(chunks) == 0:
+            return 0
+        # 构建向量索引并保存到本地
+        self.db = FAISS.from_texts(chunks, self.embedding)
+        self.db.save_local(self.index_path)
+        return len(chunks)
 
     def search(self, question, top_k=3):
-        self._get_or_create_collection()
-        results = self.collection.query(query_texts=[question], n_results=top_k)
-        return results["documents"][0] if results["documents"][0] else []
+        """语义检索，返回top-k相关文本片段"""
+        self._load_or_create_index()
+        search_result = self.db.similarity_search(query=question, k=top_k)
+        # 提取文本内容，格式和原Chroma返回完全一致
+        content_list = [doc.page_content for doc in search_result]
+        return content_list if content_list else []
 
     def count(self):
-        self._get_or_create_collection()
-        return self.collection.count()
+        """获取向量库中文本块总数"""
+        self._load_or_create_index()
+        return self.db.index.ntotal
