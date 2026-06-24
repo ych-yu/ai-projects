@@ -3,7 +3,76 @@ import requests
 import json
 import os
 
+import chromadb
+from chromadb.utils import embedding_functions
 
+class VectorStore:
+    """向量存储与检索模块"""
+    def __init__(self, api_key, collection_name="my_docs"):
+        self.ef = embedding_functions.OpenAIEmbeddingFunction(
+            api_key=api_key,
+            api_base="https://dashscope.aliyuncs.com/compatible-mode/v1",
+            model_name="text-embedding-v1"
+        )
+        self.client = chromadb.PersistentClient(path="./my_chroma_db")
+        self.collection_name = collection_name
+        self._get_or_create_collection()
+
+    def _get_or_create_collection(self):
+        """安全获取/创建集合"""
+        try:
+            self.collection = self.client.get_collection(
+                name=self.collection_name,
+                embedding_function=self.ef
+            )
+        except Exception:
+            try:
+                self.client.delete_collection(self.collection_name)
+            except Exception:
+                pass
+            self.collection = self.client.create_collection(
+                name=self.collection_name,
+                embedding_function=self.ef,
+                metadata={"hnsw:space": "cosine"}
+            )
+
+    def _clear_all(self):
+        """清空集合所有数据"""
+        try:
+            all_data = self.collection.get()
+            all_ids = all_data["ids"]
+            if len(all_ids) > 0:
+                self.collection.delete(ids=all_ids)
+        except Exception:
+            self.client.delete_collection(self.collection_name)
+            self._get_or_create_collection()
+
+    def add_documents(self, chunks):
+        """批量存入文本块（分批，每批最多25个）"""
+        self._clear_all()
+        batch_size = 25
+        total = 0
+        for start in range(0, len(chunks), batch_size):
+            batch = chunks[start:start + batch_size]
+            ids = [f"chunk_{start + i}" for i in range(len(batch))]
+            self.collection.add(
+                documents=batch,
+                ids=ids
+            )
+            total += len(batch)
+        return total
+
+    def search(self, question, top_k=3):
+        """语义检索"""
+        results = self.collection.query(
+            query_texts=[question],
+            n_results=top_k
+        )
+        return results["documents"][0] if results["documents"][0] else []
+
+    def count(self):
+        """返回当前集合中存储的文本块数量"""
+        return self.collection.count()
 class VectorStore:
     """轻量级向量存储，使用numpy进行余弦相似度计算，不依赖chromadb"""
 
