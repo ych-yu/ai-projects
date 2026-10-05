@@ -1,3 +1,4 @@
+# app.py
 # 第一行强制关闭chroma遥测，消除capture警告
 import streamlit as st
 from file_processer import read_file
