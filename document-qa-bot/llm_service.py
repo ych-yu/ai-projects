@@ -1,6 +1,5 @@
 # llm_service.py
 import requests
-
 def generate_answer(question,context,api_key="YOUR-API-KEY"):
     """
     调用通义千问大模型，基于文档内容生成回答。
